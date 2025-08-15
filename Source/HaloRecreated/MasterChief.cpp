@@ -1,6 +1,8 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "MasterChief.h"
+
+#include "BattleRifleProjectile.h"
 #include "Animation/AnimInstance.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
@@ -111,29 +113,29 @@ void AMasterChief::Shoot()
 
 void AMasterChief::BRBurst()
 {
-	FVector Start = FirstPersonCamera->GetComponentLocation();
-	FVector End = Start + (FirstPersonCamera->GetForwardVector() * 3296.f);
+	if (ProjectileClass != nullptr)
+	{
+		UWorld* const World = GetWorld();
+		if (World != nullptr)
+		{
+			const FRotator SpawnRotation = FirstPersonCamera->GetComponentRotation();
+			const FVector SpawnLocation = FirstPersonCamera->GetComponentLocation() + FirstPersonCamera->GetForwardVector() * 40.f;;
+			FActorSpawnParameters ActorSpawnParams;
+			ActorSpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+			
+			World->SpawnActor<ABattleRifleProjectile>(ProjectileClass, SpawnLocation, SpawnRotation, ActorSpawnParams);
+			UE_LOG(LogTemp, Warning, TEXT("Shot BR"));
 
-	FHitResult Hit;
-	FCollisionQueryParams Params;
-	Params.AddIgnoredActor(this);
-	
-	UE_LOG(LogTemp, Warning, TEXT("Shot gun"));
-	DrawDebugLine(GetWorld(), Start, End, FColor::Red, false, 5.0f, 0, 1.0f);
-	if (GetWorld()->LineTraceSingleByChannel(Hit, Start, End, ECC_Visibility, Params))
-	{
-		GEngine->AddOnScreenDebugMessage(1, 5.f, FColor::Blue, Hit.GetActor()->GetName());
+			if (++CurrentBulletsShot == MaxBulletsPerBurst)
+			{
+				CurrentBulletsShot = 0;
+				GetWorldTimerManager().ClearTimer(BRBurstTimerHandle);
+				BRBurstTimerHandle.Invalidate();
+				GetWorldTimerManager().SetTimer(BRBurstCooldownHandle, this, &AMasterChief::BREndCooldown, 0.2f, false);
+				UE_LOG(LogTemp, Warning, TEXT("done"));
+			}
+		}
 	}
-	
-	if (++CurrentBulletsShot == MaxBulletsPerBurst)
-	{
-		CurrentBulletsShot = 0;
-		GetWorldTimerManager().ClearTimer(BRBurstTimerHandle);
-		BRBurstTimerHandle.Invalidate();
-		GetWorldTimerManager().SetTimer(BRBurstCooldownHandle, this, &AMasterChief::BREndCooldown, 0.2f, false);
-		UE_LOG(LogTemp, Warning, TEXT("done"));
-	}
-	
 }
 
 void AMasterChief::BREndCooldown()
