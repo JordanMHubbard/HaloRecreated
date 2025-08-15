@@ -1,7 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "MasterChief.h"
-
 #include "BattleRifleProjectile.h"
 #include "Animation/AnimInstance.h"
 #include "Camera/CameraComponent.h"
@@ -65,9 +64,6 @@ void AMasterChief::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 
 		// Looking
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AMasterChief::Look);
-
-		// Shooting
-		EnhancedInputComponent->BindAction(ShootAction, ETriggerEvent::Started, this, &AMasterChief::Shoot);
 	}
 	else
 	{
@@ -100,46 +96,5 @@ void AMasterChief::Look(const FInputActionValue& Value)
 		AddControllerYawInput(LookAxisVector.X * MouseSensitivity);
 		AddControllerPitchInput(LookAxisVector.Y * MouseSensitivity);
 	}
-}
-
-void AMasterChief::Shoot()
-{
-	if (isOnCooldown) return;
-
-	isOnCooldown = true;
-	BRBurst();
-	GetWorldTimerManager().SetTimer(BRBurstTimerHandle, this, &AMasterChief::BRBurst, 0.138f, true);
-}
-
-void AMasterChief::BRBurst()
-{
-	if (ProjectileClass != nullptr)
-	{
-		UWorld* const World = GetWorld();
-		if (World != nullptr)
-		{
-			const FRotator SpawnRotation = FirstPersonCamera->GetComponentRotation();
-			const FVector SpawnLocation = FirstPersonCamera->GetComponentLocation() + FirstPersonCamera->GetForwardVector() * 40.f;;
-			FActorSpawnParameters ActorSpawnParams;
-			ActorSpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-			
-			World->SpawnActor<ABattleRifleProjectile>(ProjectileClass, SpawnLocation, SpawnRotation, ActorSpawnParams);
-			UE_LOG(LogTemp, Warning, TEXT("Shot BR"));
-
-			if (++CurrentBulletsShot == MaxBulletsPerBurst)
-			{
-				CurrentBulletsShot = 0;
-				GetWorldTimerManager().ClearTimer(BRBurstTimerHandle);
-				BRBurstTimerHandle.Invalidate();
-				GetWorldTimerManager().SetTimer(BRBurstCooldownHandle, this, &AMasterChief::BREndCooldown, 0.2f, false);
-				UE_LOG(LogTemp, Warning, TEXT("done"));
-			}
-		}
-	}
-}
-
-void AMasterChief::BREndCooldown()
-{
-	isOnCooldown = false;
 }
 

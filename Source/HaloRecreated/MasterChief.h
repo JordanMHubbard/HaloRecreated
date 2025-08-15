@@ -40,25 +40,7 @@ class HALORECREATED_API AMasterChief : public ACharacter
 	UInputAction* LookAction;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	UInputAction* ShootAction;
-	
-	UPROPERTY(EditDefaultsOnly, Category = Projectile)
-	TSubclassOf<class ABattleRifleProjectile> ProjectileClass;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	float MouseSensitivity = 0.5f;
-
-	UFUNCTION()
-	void BRBurst();
-
-	UFUNCTION()
-	void BREndCooldown();
-
-	FTimerHandle BRBurstTimerHandle;
-	FTimerHandle BRBurstCooldownHandle;
-	int32 CurrentBulletsShot = 0;
-	int32 MaxBulletsPerBurst = 3;
-	bool isOnCooldown;
 	
 public:
 	// Sets default values for this character's properties
@@ -68,7 +50,6 @@ protected:
 	// Input
 	void Move(const FInputActionValue& Value);
 	void Look(const FInputActionValue& Value);
-	void Shoot();
 	
 	// APawn interface
 	virtual void NotifyControllerChanged() override;
