@@ -62,15 +62,19 @@ void UBattleRifle::Burst()
 			FActorSpawnParameters ActorSpawnParams;
 			ActorSpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 			
-			World->SpawnActor<ABattleRifleProjectile>(ProjectileClass, SpawnLocation, SpawnRotation, ActorSpawnParams);
+			 ABattleRifleProjectile* BulletProjectile = World->SpawnActor<ABattleRifleProjectile>(ProjectileClass, SpawnLocation,
+			 	SpawnRotation, ActorSpawnParams);
 			UE_LOG(LogTemp, Warning, TEXT("Shot BR"));
 
+			//BulletProjectile->SetIsDecalDisabled(true);
+			
 			if (++CurrentBulletsShot == MaxBulletsPerBurst)
 			{
 				CurrentBulletsShot = 0;
+				BulletProjectile->SetIsDecalDisabled(false); 
 				GetWorld()->GetTimerManager().ClearTimer(BRBurstTimerHandle);
 				BRBurstTimerHandle.Invalidate();
-				GetWorld()->GetTimerManager().SetTimer(BRBurstCooldownHandle, this, &UBattleRifle::EndCooldown, FireRate, false);
+				GetWorld()->GetTimerManager().SetTimer(BRBurstCooldownHandle, this, &UBattleRifle::EndCooldown, 0.46f, false);
 				UE_LOG(LogTemp, Warning, TEXT("done"));
 			}
 		}

@@ -3,6 +3,8 @@
 #include "BattleRifleProjectile.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Components/SphereComponent.h"
+#include "Materials/MaterialInterface.h"
+#include "Kismet/GameplayStatics.h"
 
 ABattleRifleProjectile::ABattleRifleProjectile()
 {
@@ -31,6 +33,20 @@ void ABattleRifleProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherAc
 	{
 		if (GEngine) GEngine->AddOnScreenDebugMessage(1, 5.f, FColor::Blue, OtherActor->GetName());
 
+		FRotator DecalRotation = Hit.ImpactNormal.Rotation();
+		DecalRotation.Roll = FMath::FRandRange(0.f, 360.f);
+
+		if (!IsDecalDisabled)
+		{
+			UGameplayStatics::SpawnDecalAtLocation(
+				GetWorld(),
+				BulletHole,
+				GetRandomBulletHoleSize(),
+				Hit.ImpactPoint + Hit.ImpactNormal * 1.f,
+				DecalRotation,
+				BulletHoleLifespan
+			);
+		}
 		Destroy();
 	}
 }
