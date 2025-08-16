@@ -11,6 +11,7 @@
 #include "Engine/LocalPlayer.h"
 #include "TimerManager.h"
 #include "Kismet/GameplayStatics.h"
+#include "NiagaraFunctionLibrary.h"
 
 void UBattleRifle::BeginPlay()
 {
@@ -41,7 +42,7 @@ void UBattleRifle::Fire()
 
 	IsOnCooldown = true;
 	Burst();
-	GetWorld()->GetTimerManager().SetTimer(BRBurstTimerHandle, this, &UBattleRifle::Burst, 0.138f, true);
+	GetWorld()->GetTimerManager().SetTimer(BRBurstTimerHandle, this, &UBattleRifle::Burst, FireRate, true);
 }
 
 void UBattleRifle::Burst()
@@ -69,7 +70,7 @@ void UBattleRifle::Burst()
 				CurrentBulletsShot = 0;
 				GetWorld()->GetTimerManager().ClearTimer(BRBurstTimerHandle);
 				BRBurstTimerHandle.Invalidate();
-				GetWorld()->GetTimerManager().SetTimer(BRBurstCooldownHandle, this, &UBattleRifle::EndCooldown, 0.2f, false);
+				GetWorld()->GetTimerManager().SetTimer(BRBurstCooldownHandle, this, &UBattleRifle::EndCooldown, FireRate, false);
 				UE_LOG(LogTemp, Warning, TEXT("done"));
 			}
 		}
@@ -79,6 +80,19 @@ void UBattleRifle::Burst()
 	if (FireSound != nullptr)
 	{
 		UGameplayStatics::PlaySoundAtLocation(this, FireSound, PlayerCharacter->GetActorLocation());
+	}
+
+	if (MuzzleFlash != nullptr)
+	{
+		UNiagaraFunctionLibrary::SpawnSystemAttached(
+			MuzzleFlash,
+			this,
+			FName("Muzzle"),
+			FVector::ZeroVector,  
+			FRotator::ZeroRotator,
+			EAttachLocation::SnapToTarget,
+			true
+		);
 	}
 	
 	// Try and play a firing animation if specified

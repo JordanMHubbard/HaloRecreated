@@ -8,34 +8,31 @@
 
 class AMasterChief;
 class UCameraComponent;
+class UNiagaraSystem;
 
 UCLASS(Blueprintable, BlueprintType, ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class HALORECREATED_API UBattleRifle : public USkeletalMeshComponent
 {
 	GENERATED_BODY()
 	
-public:
-	/** Projectile class to spawn */
 	UPROPERTY(EditDefaultsOnly, Category = Projectile)
 	TSubclassOf<class ABattleRifleProjectile> ProjectileClass;
-
-	/** Sound to play each time we fire */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay, meta=(AllowPrivateAccess = "true"))
 	USoundBase* FireSound;
 	
-	/** AnimMontage to play each time we fire */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay, meta=(AllowPrivateAccess = "true"))
 	UAnimMontage* FireAnimation;
 
-	/** MappingContext */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay, meta=(AllowPrivateAccess = "true"))
+	UNiagaraSystem* MuzzleFlash;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta=(AllowPrivateAccess = "true"))
 	class UInputMappingContext* FireMappingContext;
-
-	/** Fire Input Action */
+	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta=(AllowPrivateAccess = "true"))
 	class UInputAction* FireAction;
-
-	/** Make the weapon Fire a Projectile */
+	
 	UFUNCTION(BlueprintCallable, Category = "Weapon")
 	void Fire();
 
@@ -49,6 +46,7 @@ public:
 	FTimerHandle BRBurstCooldownHandle;
 	int32 CurrentBulletsShot = 0;
 	int32 MaxBulletsPerBurst = 3;
+	float FireRate = 0.06f;
 	bool IsOnCooldown;
 
 protected:
