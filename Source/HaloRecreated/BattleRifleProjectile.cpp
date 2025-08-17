@@ -1,10 +1,13 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "BattleRifleProjectile.h"
+
+#include "NiagaraFunctionLibrary.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Components/SphereComponent.h"
 #include "Materials/MaterialInterface.h"
 #include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetMathLibrary.h"
 
 ABattleRifleProjectile::ABattleRifleProjectile()
 {
@@ -33,11 +36,19 @@ void ABattleRifleProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherAc
 	{
 		if (GEngine) GEngine->AddOnScreenDebugMessage(1, 5.f, FColor::Blue, OtherActor->GetName());
 
+		FRotator SparkRotation = UKismetMathLibrary::MakeRotFromZ(Hit.ImpactNormal);
+
 		FRotator DecalRotation = Hit.ImpactNormal.Rotation();
 		DecalRotation.Roll = FMath::FRandRange(0.f, 360.f);
-
-		if (!IsDecalDisabled)
+		if (!IsHitVFXDisabled)
 		{
+			UNiagaraFunctionLibrary::SpawnSystemAtLocation(
+				GetWorld(),
+				HitSpark,
+				Hit.ImpactPoint,
+				SparkRotation
+			);
+			
 			UGameplayStatics::SpawnDecalAtLocation(
 				GetWorld(),
 				BulletHole,
@@ -47,6 +58,7 @@ void ABattleRifleProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherAc
 				BulletHoleLifespan
 			);
 		}
+		
 		Destroy();
 	}
 }

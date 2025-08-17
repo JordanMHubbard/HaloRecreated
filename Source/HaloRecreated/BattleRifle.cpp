@@ -65,13 +65,15 @@ void UBattleRifle::Burst()
 			 ABattleRifleProjectile* BulletProjectile = World->SpawnActor<ABattleRifleProjectile>(ProjectileClass, SpawnLocation,
 			 	SpawnRotation, ActorSpawnParams);
 			UE_LOG(LogTemp, Warning, TEXT("Shot BR"));
-
-			//BulletProjectile->SetIsDecalDisabled(true);
+			
+			if (CurrentBulletsShot > 0)
+			{
+				BulletProjectile->SetIsHitVFXDisabled(true);
+			}
 			
 			if (++CurrentBulletsShot == MaxBulletsPerBurst)
 			{
 				CurrentBulletsShot = 0;
-				BulletProjectile->SetIsDecalDisabled(false); 
 				GetWorld()->GetTimerManager().ClearTimer(BRBurstTimerHandle);
 				BRBurstTimerHandle.Invalidate();
 				GetWorld()->GetTimerManager().SetTimer(BRBurstCooldownHandle, this, &UBattleRifle::EndCooldown, 0.46f, false);

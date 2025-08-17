@@ -9,6 +9,7 @@
 class USphereComponent;
 class UProjectileMovementComponent;
 class UMaterialInterface;
+class UNiagaraSystem;
 
 UCLASS()
 class HALORECREATED_API ABattleRifleProjectile : public AActor
@@ -25,12 +26,15 @@ class HALORECREATED_API ABattleRifleProjectile : public AActor
 	UMaterialInterface* BulletHole;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = VFX, meta = (AllowPrivateAccess = "true"))
+	UNiagaraSystem* HitSpark;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = VFX, meta = (AllowPrivateAccess = "true"))
 	float BulletHoleSizeMin = 5.f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = VFX, meta = (AllowPrivateAccess = "true"))
 	float BulletHoleSizeMax = 7.f;
 
-	bool IsDecalDisabled;
+	bool IsHitVFXDisabled;
 
 	FVector GetRandomBulletHoleSize()
 	{
@@ -50,5 +54,5 @@ public:
 	USphereComponent* GetCollisionComp() const { return CollisionComp; }
 	UProjectileMovementComponent* GetProjectileMovement() const { return ProjectileMovement; }
 
-	void SetIsDecalDisabled( bool IsDisabled) { IsDecalDisabled = IsDisabled; } 
+	void SetIsHitVFXDisabled( bool IsDisabled) { IsHitVFXDisabled = IsDisabled; } 
 };
